@@ -1,3 +1,5 @@
+import 'package:firebase_advanced/home/home_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_advanced/widgets/custom_text_field.dart';
 import 'package:firebase_advanced/widgets/custom_button.dart';
@@ -14,9 +16,36 @@ class _RegisterPageState extends State<RegisterPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
-  void signUp() {
-    // Implement sign up
+  void signUp() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    try {
+      final credential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+            email: _emailController.text,
+            password: _passwordController.text,
+          );
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const HomePage()),
+      );
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('The password provided is too weak.')),
+        );
+      } else if (e.code == 'email-already-in-use') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('The account already exists for that email.')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
+    }
   }
 
   @override
@@ -34,36 +63,39 @@ class _RegisterPageState extends State<RegisterPage> {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
-                  'assets/notes.png',
-                  height: 100,
-                ),
-                const SizedBox(height: 50),
-                const Text(
-                  'Hello There!',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24,
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset('assets/notes.png', height: 100),
+                  const SizedBox(height: 50),
+                  const Text(
+                    'Hello There!',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
                   ),
-                ),
-                const SizedBox(height: 10),
-                const Text(
-                  'Register below with your details',
-                  style: TextStyle(
-                    fontSize: 18,
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Register below with your details',
+                    style: TextStyle(fontSize: 18),
                   ),
-                ),
-                const SizedBox(height: 50),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                  child: CustomTextField(
-                    controller: _emailController,
-                    hintText: 'Email',
+                  const SizedBox(height: 50),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                    child: CustomTextField(
+                      controller: _emailController,
+                      hintText: 'Email',
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your email';
+                        }
+                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                          return 'Please enter a valid email';
+                        }
+                        return null;
+                      },
+                    ),
                   ),
-                ),
                 const SizedBox(height: 10),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 25.0),
@@ -71,25 +103,39 @@ class _RegisterPageState extends State<RegisterPage> {
                     controller: _passwordController,
                     hintText: 'Password',
                     obscureText: true,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your password';
+                      }
+                      if (value.length < 6) {
+                        return 'Password must be at least 6 characters';
+                      }
+                      return null;
+                    },
                   ),
                 ),
                 const SizedBox(height: 10),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 25.0),
                   child: CustomTextField(
-                    
                     controller: _confirmPasswordController,
                     hintText: 'Confirm Password',
                     obscureText: true,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please confirm your password';
+                      }
+                      if (value != _passwordController.text) {
+                        return 'Passwords do not match';
+                      }
+                      return null;
+                    },
                   ),
                 ),
                 const SizedBox(height: 20),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                  child: CustomButton(
-                    onTap: signUp,
-                    text: 'Sign Up',
-                  ),
+                  child: CustomButton(onTap: signUp, text: 'Sign Up'),
                 ),
                 const SizedBox(height: 30),
                 Padding(
@@ -97,10 +143,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   child: Row(
                     children: [
                       Expanded(
-                        child: Divider(
-                          thickness: 0.5,
-                          color: Colors.grey[400],
-                        ),
+                        child: Divider(thickness: 0.5, color: Colors.grey[400]),
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 10.0),
@@ -110,10 +153,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                       ),
                       Expanded(
-                        child: Divider(
-                          thickness: 0.5,
-                          color: Colors.grey[400],
-                        ),
+                        child: Divider(thickness: 0.5, color: Colors.grey[400]),
                       ),
                     ],
                   ),
@@ -176,6 +216,7 @@ class _RegisterPageState extends State<RegisterPage> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
