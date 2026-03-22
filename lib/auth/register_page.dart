@@ -1,4 +1,5 @@
 import 'package:firebase_advanced/auth/login_page.dart';
+import 'package:firebase_advanced/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_advanced/widgets/custom_text_field.dart';
 import 'package:firebase_advanced/widgets/custom_button.dart';
@@ -28,9 +29,10 @@ class _RegisterPageState extends State<RegisterPage> {
     );
 
     if (mounted) {
+      final l10n = AppLocalizations.of(context)!;
       if (error == null) {
         Fluttertoast.showToast(
-          msg: 'Email Verification Sent',
+          msg: l10n.emailVerificationSent,
           backgroundColor: Colors.green,
           textColor: Colors.white,
         );
@@ -58,6 +60,8 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: Colors.grey[300],
       body: SafeArea(
@@ -70,29 +74,29 @@ class _RegisterPageState extends State<RegisterPage> {
                 children: [
                   Image.asset('assets/notes.png', height: 100),
                   const SizedBox(height: 50),
-                  const Text(
-                    'Hello There!',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+                  Text(
+                    l10n.helloThere,
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
                   ),
                   const SizedBox(height: 10),
-                  const Text(
-                    'Register below with your details',
-                    style: TextStyle(fontSize: 18),
+                  Text(
+                    l10n.registerBelow,
+                    style: const TextStyle(fontSize: 18),
                   ),
                   const SizedBox(height: 50),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 25.0),
                     child: CustomTextField(
                       controller: _emailController,
-                      hintText: 'Email',
+                      hintText: l10n.emailHint,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your email';
+                          return l10n.emailEmptyError;
                         }
                         if (!RegExp(
                           r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
                         ).hasMatch(value)) {
-                          return 'Please enter a valid email';
+                          return l10n.emailInvalidError;
                         }
                         return null;
                       },
@@ -103,14 +107,14 @@ class _RegisterPageState extends State<RegisterPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 25.0),
                     child: CustomTextField(
                       controller: _passwordController,
-                      hintText: 'Password',
+                      hintText: l10n.passwordHint,
                       obscureText: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your password';
+                          return l10n.passwordEmptyError;
                         }
                         if (value.length < 6) {
-                          return 'Password must be at least 6 characters';
+                          return l10n.passwordLengthError;
                         }
                         return null;
                       },
@@ -121,14 +125,14 @@ class _RegisterPageState extends State<RegisterPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 25.0),
                     child: CustomTextField(
                       controller: _confirmPasswordController,
-                      hintText: 'Confirm Password',
+                      hintText: l10n.confirmPasswordHint,
                       obscureText: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please confirm your password';
+                          return l10n.confirmPasswordEmptyError;
                         }
                         if (value != _passwordController.text) {
-                          return 'Passwords do not match';
+                          return l10n.passwordsNotMatchError;
                         }
                         return null;
                       },
@@ -137,7 +141,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   const SizedBox(height: 20),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                    child: CustomButton(onTap: signUp, text: 'Sign Up'),
+                    child: CustomButton(onTap: signUp, text: l10n.signUpButton),
                   ),
                   const SizedBox(height: 30),
                   Padding(
@@ -153,7 +157,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 10.0),
                           child: Text(
-                            'Or continue with',
+                            l10n.orContinueWith,
                             style: TextStyle(color: Colors.grey[700]),
                           ),
                         ),
@@ -172,10 +176,10 @@ class _RegisterPageState extends State<RegisterPage> {
                     children: [
                       SquareTile(
                         onTap: () {},
-                        child: const Row(
+                        child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(
+                            const Text(
                               'G',
                               style: TextStyle(
                                 color: Colors.blue,
@@ -183,10 +187,10 @@ class _RegisterPageState extends State<RegisterPage> {
                                 fontSize: 24,
                               ),
                             ),
-                            SizedBox(width: 10),
+                            const SizedBox(width: 10),
                             Text(
-                              'Google',
-                              style: TextStyle(
+                              l10n.googleButton,
+                              style: const TextStyle(
                                 color: Colors.black87,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
@@ -201,17 +205,17 @@ class _RegisterPageState extends State<RegisterPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text(
-                        'I am a member!',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                      Text(
+                        l10n.iAmAMember,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       GestureDetector(
                         onTap: () {
                           Navigator.pop(context);
                         },
-                        child: const Text(
-                          ' Login now',
-                          style: TextStyle(
+                        child: Text(
+                          l10n.loginNow,
+                          style: const TextStyle(
                             color: Colors.blue,
                             fontWeight: FontWeight.bold,
                           ),
