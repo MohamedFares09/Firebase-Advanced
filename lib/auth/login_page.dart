@@ -1,5 +1,6 @@
 import 'package:firebase_advanced/home/home_page.dart';
-
+import 'package:firebase_advanced/l10n/app_localizations.dart';
+import 'package:firebase_advanced/main.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_advanced/widgets/custom_text_field.dart';
 import 'package:firebase_advanced/widgets/custom_button.dart';
@@ -21,10 +22,11 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
 
   Future<void> _forgotPassword() async {
+    final l10n = AppLocalizations.of(context)!;
     final email = _emailController.text.trim();
     if (email.isEmpty) {
       Fluttertoast.showToast(
-        msg: 'يرجي ادخال البريد الالكتروني',
+        msg: l10n.resetPasswordEmailEmpty,
         backgroundColor: Colors.white,
         textColor: Colors.red,
         timeInSecForIosWeb: 5,
@@ -34,7 +36,7 @@ class _LoginPageState extends State<LoginPage> {
     final error = await AuthController().forgetPassword(email);
     if (error == null) {
       Fluttertoast.showToast(
-        msg: 'تم ارسال رابط اعادة تعيين كلمة المرور بنجاح',
+        msg: l10n.resetPasswordSuccess,
         backgroundColor: Colors.green,
         textColor: Colors.white,
       );
@@ -49,6 +51,8 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: Colors.grey[300],
       body: SafeArea(
@@ -60,26 +64,43 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          final currentLocale = Localizations.localeOf(context);
+                          if (currentLocale.languageCode == 'en') {
+                            MyApp.setLocale(context, const Locale('ar', ''));
+                          } else {
+                            MyApp.setLocale(context, const Locale('en', ''));
+                          }
+                        },
+                        icon: const Icon(Icons.language),
+                      ),
+                      const SizedBox(width: 10),
+                    ],
+                  ),
                   Image.asset('assets/notes.png', height: 100),
                   const SizedBox(height: 50),
-                  const Text(
-                    'Welcome Back!',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+                  Text(
+                    l10n.welcomeBack,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 24,
+                    ),
                   ),
                   const SizedBox(height: 10),
-                  const Text(
-                    'We\'ve missed you',
-                    style: TextStyle(fontSize: 18),
-                  ),
+                  Text(l10n.weMissedYou, style: const TextStyle(fontSize: 18)),
                   const SizedBox(height: 50),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 25.0),
                     child: CustomTextField(
                       controller: _emailController,
-                      hintText: 'Email',
+                      hintText: l10n.emailHint,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'يرجي ادخال البريد الالكتروني';
+                          return l10n.emailEmptyError;
                         }
                         return null;
                       },
@@ -90,11 +111,11 @@ class _LoginPageState extends State<LoginPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 25.0),
                     child: CustomTextField(
                       controller: _passwordController,
-                      hintText: 'Password',
+                      hintText: l10n.passwordHint,
                       obscureText: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'يرجي ادخال كلمة المرور';
+                          return l10n.passwordEmptyError;
                         }
                         return null;
                       },
@@ -109,7 +130,7 @@ class _LoginPageState extends State<LoginPage> {
                         GestureDetector(
                           onTap: _forgotPassword,
                           child: Text(
-                            'Forgot Password?',
+                            l10n.forgotPassword,
                             style: TextStyle(
                               color: Colors.grey[600],
                               fontWeight: FontWeight.bold,
@@ -148,7 +169,7 @@ class _LoginPageState extends State<LoginPage> {
                           }
                         }
                       },
-                      text: 'Sign In',
+                      text: l10n.signInButton,
                     ),
                   ),
                   const SizedBox(height: 30),
@@ -165,7 +186,7 @@ class _LoginPageState extends State<LoginPage> {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 10.0),
                           child: Text(
-                            'Or continue with',
+                            l10n.orContinueWith,
                             style: TextStyle(color: Colors.grey[700]),
                           ),
                         ),
@@ -186,7 +207,7 @@ class _LoginPageState extends State<LoginPage> {
                       children: [
                         SquareTile(
                           onTap: () {},
-                          child: const Row(
+                          child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
@@ -199,7 +220,7 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                               SizedBox(width: 10),
                               Text(
-                                'Google',
+                                l10n.googleButton,
                                 style: TextStyle(
                                   color: Colors.black87,
                                   fontWeight: FontWeight.bold,
@@ -216,9 +237,9 @@ class _LoginPageState extends State<LoginPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text(
-                        'Not a member?',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                      Text(
+                        l10n.notAMember,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       GestureDetector(
                         onTap: () {
@@ -229,9 +250,9 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           );
                         },
-                        child: const Text(
-                          ' Register now',
-                          style: TextStyle(
+                        child: Text(
+                          l10n.registerNow,
+                          style: const TextStyle(
                             color: Colors.blue,
                             fontWeight: FontWeight.bold,
                           ),
