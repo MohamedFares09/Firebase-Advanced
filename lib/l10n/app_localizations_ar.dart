@@ -84,4 +84,10 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get loginNow => ' تسجيل الدخول';
+
+  @override
+  String get homePageTitle => 'الصفحة الرئيسية';
+
+  @override
+  String get welcomeMessage => 'مرحباً بكم';
 }

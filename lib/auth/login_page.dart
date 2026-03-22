@@ -67,16 +67,21 @@ class _LoginPageState extends State<LoginPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      IconButton(
-                        onPressed: () {
-                          final currentLocale = Localizations.localeOf(context);
-                          if (currentLocale.languageCode == 'en') {
-                            MyApp.setLocale(context, const Locale('ar', ''));
-                          } else {
-                            MyApp.setLocale(context, const Locale('en', ''));
-                          }
-                        },
+                      PopupMenuButton<String>(
                         icon: const Icon(Icons.language),
+                        onSelected: (String languageCode) {
+                          MyApp.setLocale(context, Locale(languageCode, ''));
+                        },
+                        itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                          const PopupMenuItem<String>(
+                            value: 'ar',
+                            child: Text('العربية'),
+                          ),
+                          const PopupMenuItem<String>(
+                            value: 'en',
+                            child: Text('English'),
+                          ),
+                        ],
                       ),
                       const SizedBox(width: 10),
                     ],

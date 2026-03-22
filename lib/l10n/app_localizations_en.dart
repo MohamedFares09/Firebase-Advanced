@@ -84,4 +84,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loginNow => ' Login now';
+
+  @override
+  String get homePageTitle => 'Home Page';
+
+  @override
+  String get welcomeMessage => 'Welcome';
 }

@@ -1,4 +1,5 @@
 import 'package:firebase_advanced/auth/login_page.dart';
+import 'package:firebase_advanced/l10n/app_localizations.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -7,6 +8,7 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -21,9 +23,9 @@ class HomePage extends StatelessWidget {
             icon: Icon(Icons.logout),
           ),
         ],
-        title: const Text('Home Page'),
+        title: Text(l10n.homePageTitle),
       ),
-      body: Column(children: [Center(child: Text('Welcome'))]),
+      body: Column(children: [Center(child: Text(l10n.welcomeMessage))]),
     );
   }
 }

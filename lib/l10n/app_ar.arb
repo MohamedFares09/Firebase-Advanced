@@ -24,5 +24,7 @@
   "signUpButton": "تسجيل حساب",
   "emailVerificationSent": "تم إرسال بريد التحقق",
   "iAmAMember": "أنا عضو بالفعل!",
-  "loginNow": " تسجيل الدخول"
+  "loginNow": " تسجيل الدخول",
+  "homePageTitle": "الصفحة الرئيسية",
+  "welcomeMessage": "مرحباً بكم"
 }

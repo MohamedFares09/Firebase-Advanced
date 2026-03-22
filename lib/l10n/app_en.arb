@@ -24,5 +24,7 @@
   "signUpButton": "Sign Up",
   "emailVerificationSent": "Email Verification Sent",
   "iAmAMember": "I am a member!",
-  "loginNow": " Login now"
+  "loginNow": " Login now",
+  "homePageTitle": "Home Page",
+  "welcomeMessage": "Welcome"
 }
