@@ -1,4 +1,5 @@
 import 'package:firebase_advanced/l10n/app_localizations.dart';
+import 'package:firebase_advanced/widgets/custom_button.dart';
 import 'package:firebase_advanced/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
 
@@ -30,7 +31,9 @@ class _AddCategoryState extends State<AddCategory> {
         child: Column(
           children: [
             const SizedBox(height: 50),
-            CustomTextField(controller: controller, hintText: "Category Name"),
+            CustomTextField(controller: controller, hintText: l10n.addCategory),
+            SizedBox(height: 20),
+            CustomButton(onTap: () {}, text: l10n.addCategory),
           ],
         ),
       ),
