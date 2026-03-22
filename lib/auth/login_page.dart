@@ -1,10 +1,12 @@
 import 'package:firebase_advanced/home/home_page.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_advanced/widgets/custom_text_field.dart';
 import 'package:firebase_advanced/widgets/custom_button.dart';
 import 'package:firebase_advanced/widgets/square_tile.dart';
 import 'package:firebase_advanced/auth/register_page.dart';
+import 'package:firebase_advanced/controllers/auth_controller.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -16,8 +18,34 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   final _formKey = GlobalKey<FormState>();
+
+  Future<void> _forgotPassword() async {
+    final email = _emailController.text.trim();
+    if (email.isEmpty) {
+      Fluttertoast.showToast(
+        msg: 'يرجي ادخال البريد الالكتروني',
+        backgroundColor: Colors.white,
+        textColor: Colors.red,
+        timeInSecForIosWeb: 5,
+      );
+      return;
+    }
+    final error = await AuthController().forgetPassword(email);
+    if (error == null) {
+      Fluttertoast.showToast(
+        msg: 'تم ارسال رابط اعادة تعيين كلمة المرور بنجاح',
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+      );
+    } else {
+      Fluttertoast.showToast(
+        msg: error,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +56,7 @@ class _LoginPageState extends State<LoginPage> {
           child: SingleChildScrollView(
             child: Form(
               key: _formKey,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -50,7 +79,7 @@ class _LoginPageState extends State<LoginPage> {
                       hintText: 'Email',
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your email';
+                          return 'يرجي ادخال البريد الالكتروني';
                         }
                         return null;
                       },
@@ -65,10 +94,29 @@ class _LoginPageState extends State<LoginPage> {
                       obscureText: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your password';
+                          return 'يرجي ادخال كلمة المرور';
                         }
                         return null;
                       },
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        GestureDetector(
+                          onTap: _forgotPassword,
+                          child: Text(
+                            'Forgot Password?',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -77,23 +125,24 @@ class _LoginPageState extends State<LoginPage> {
                     child: CustomButton(
                       onTap: () async {
                         if (_formKey.currentState!.validate()) {
-                          try {
-                            await firebaseAuth.signInWithEmailAndPassword(
-                              email: _emailController.text,
-                              password: _passwordController.text,
-                            );
-                            if (context.mounted) {
+                          final error = await AuthController().signIn(
+                            _emailController.text,
+                            _passwordController.text,
+                          );
+
+                          if (context.mounted) {
+                            if (error == null) {
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => const HomePage(),
                                 ),
                               );
-                            }
-                          } catch (e) {
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(e.toString())),
+                            } else {
+                              Fluttertoast.showToast(
+                                msg: error,
+                                backgroundColor: Colors.red,
+                                textColor: Colors.white,
                               );
                             }
                           }
@@ -130,35 +179,38 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   const SizedBox(height: 30),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SquareTile(
-                        onTap: () {},
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'G',
-                              style: TextStyle(
-                                color: Colors.blue,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 24,
+                  GestureDetector(
+                    onTap: () {},
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SquareTile(
+                          onTap: () {},
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'G',
+                                style: TextStyle(
+                                  color: Colors.blue,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 24,
+                                ),
                               ),
-                            ),
-                            SizedBox(width: 10),
-                            Text(
-                              'Google',
-                              style: TextStyle(
-                                color: Colors.black87,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
+                              SizedBox(width: 10),
+                              Text(
+                                'Google',
+                                style: TextStyle(
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 30),
                   Row(
