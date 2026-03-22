@@ -90,4 +90,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get welcomeMessage => 'مرحباً بكم';
+
+  @override
+  String get addCategory => 'أضافة تصنيف';
 }

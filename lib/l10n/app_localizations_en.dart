@@ -90,4 +90,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get welcomeMessage => 'Welcome';
+
+  @override
+  String get addCategory => 'Add Category';
 }
