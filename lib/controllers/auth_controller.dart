@@ -4,48 +4,59 @@ import 'package:firebase_advanced/services/firebase_auth.dart';
 class AuthController {
   final FirebaseAuthServices _authServices = FirebaseAuthServices();
 
-  /// Signs in a user and ensures their email is verified.
-  /// Returns null if successful, or an error message string if failed.
+  /// Signs in a user
+  /// Returns null if successful, or an error message string if failed
   Future<String?> signIn(String email, String password) async {
     try {
       await _authServices.signIn(email, password);
-      
-      if (!FirebaseAuth.instance.currentUser!.emailVerified) {
-        return 'Email Not Verified';
+      return null; // ✅ نجاح
+    } on FirebaseAuthException catch (e) {
+      switch (e.code) {
+        case 'user-not-found':
+          return 'The account does not exist for that email.';
+        case 'wrong-password':
+          return 'The password provided is wrong.';
+        case 'invalid-email':
+          return 'The email provided is invalid.';
+        case 'user-disabled':
+          return 'The account is disabled.';
+        case 'too-many-requests':
+          return 'Too many requests. Please try again later.';
+        case 'network-request-failed':
+          return 'Network request failed. Please check your internet.';
+        default:
+          return e.message ?? 'Login failed';
       }
-      
-      return null; // Indicates success
     } catch (e) {
       return e.toString();
     }
   }
 
-  /// Registers a user and sends an email verification.
-  /// Returns null if successful, or an error message string if failed.
+  /// Registers a user
   Future<String?> signUp(String email, String password) async {
     try {
       await _authServices.createAccountWithEmailAndPassword(email, password);
-      await FirebaseAuth.instance.currentUser!.sendEmailVerification();
-      
-      return null; // Indicates success
+      await _authServices.sendEmailVerification();
+      return null; // نجاح
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'weak-password') {
-        return 'The password provided is too weak.';
-      } else if (e.code == 'email-already-in-use') {
-        return 'The account already exists for that email.';
+      switch (e.code) {
+        case 'weak-password':
+          return 'The password provided is too weak.';
+        case 'email-already-in-use':
+          return 'The account already exists for that email.';
+        default:
+          return e.message ?? 'Registration failed';
       }
-      return e.toString();
     } catch (e) {
       return e.toString();
     }
   }
 
-  /// Sends a password reset email.
-  /// Returns null if successful, or an error message string if failed.
+  /// Password reset
   Future<String?> forgetPassword(String email) async {
     try {
       await _authServices.forgetPassword(email);
-      return null; // Indicates success
+      return null; // نجاح
     } catch (e) {
       return e.toString();
     }
