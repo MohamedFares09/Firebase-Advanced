@@ -20,20 +20,55 @@ class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  bool isLoading = false;
 
+  // ================== LOGIN ==================
+  Future<void> _login() async {
+    final l10n = AppLocalizations.of(context)!;
+
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => isLoading = true);
+
+    final error = await AuthController().signIn(
+      _emailController.text.trim(),
+      _passwordController.text.trim(),
+    );
+
+    if (!mounted) return;
+
+    setState(() => isLoading = false);
+
+    if (error == null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const HomePage()),
+      );
+    } else {
+      Fluttertoast.showToast(
+        msg: error,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+    }
+  }
+
+  // ================== FORGOT PASSWORD ==================
   Future<void> _forgotPassword() async {
     final l10n = AppLocalizations.of(context)!;
     final email = _emailController.text.trim();
+
     if (email.isEmpty) {
       Fluttertoast.showToast(
         msg: l10n.resetPasswordEmailEmpty,
         backgroundColor: Colors.white,
         textColor: Colors.red,
-        timeInSecForIosWeb: 5,
       );
       return;
     }
+
     final error = await AuthController().forgetPassword(email);
+
     if (error == null) {
       Fluttertoast.showToast(
         msg: l10n.resetPasswordSuccess,
@@ -49,6 +84,7 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  // ================== UI ==================
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -56,219 +92,165 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       backgroundColor: Colors.grey[300],
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            child: Form(
-              key: _formKey,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+        child: Stack(
+          children: [
+            Center(
+              child: SingleChildScrollView(
+                child: Form(
+                  key: _formKey,
+                  child: Column(
                     children: [
-                      PopupMenuButton<String>(
-                        icon: const Icon(Icons.language),
-                        onSelected: (String languageCode) {
-                          MyApp.setLocale(context, Locale(languageCode, ''));
-                        },
-                        itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                          const PopupMenuItem<String>(
-                            value: 'ar',
-                            child: Text('العربية'),
+                      // 🌍 Language Switch
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          PopupMenuButton<String>(
+                            icon: const Icon(Icons.language),
+                            onSelected: (lang) {
+                              MyApp.setLocale(context, Locale(lang));
+                            },
+                            itemBuilder: (_) => const [
+                              PopupMenuItem(value: 'ar', child: Text('العربية')),
+                              PopupMenuItem(value: 'en', child: Text('English')),
+                            ],
                           ),
-                          const PopupMenuItem<String>(
-                            value: 'en',
-                            child: Text('English'),
+                          const SizedBox(width: 10),
+                        ],
+                      ),
+                      Image.asset('assets/notes.png', height: 100),
+                      const SizedBox(height: 30),
+                      Text(
+                        l10n.welcomeBack,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        l10n.weMissedYou,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      const SizedBox(height: 40),
+                      // Email
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 25),
+                        child: CustomTextField(
+                          controller: _emailController,
+                          hintText: l10n.emailHint,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return l10n.emailEmptyError;
+                            }
+                            if (!value.contains('@')) return "Invalid email";
+                            return null;
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      // Password
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 25),
+                        child: CustomTextField(
+                          controller: _passwordController,
+                          hintText: l10n.passwordHint,
+                          obscureText: true,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return l10n.passwordEmptyError;
+                            }
+                            if (value.length < 6) return "Password too short";
+                            return null;
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      // Forgot password
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 25),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            GestureDetector(
+                              onTap: _forgotPassword,
+                              child: Text(
+                                l10n.forgotPassword,
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      // Login Button
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 25),
+                        child: CustomButton(
+                          onTap: isLoading ? () {} : _login,
+                          text: l10n.signInButton,
+                        ),
+                      ),
+                      const SizedBox(height: 30),
+                      // OR Divider
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 25),
+                        child: Row(
+                          children: [
+                            Expanded(child: Divider(color: Colors.grey[400])),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
+                              child: Text(l10n.orContinueWith),
+                            ),
+                            Expanded(child: Divider(color: Colors.grey[400])),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 30),
+                      // Google Button placeholder
+                      SquareTile(
+                        onTap: () {},
+                        child: Text(l10n.googleButton),
+                      ),
+                      const SizedBox(height: 30),
+                      // Register
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(l10n.notAMember),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const RegisterPage(),
+                                ),
+                              );
+                            },
+                            child: const Text(
+                              " Register now",
+                              style: TextStyle(
+                                color: Colors.blue,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
                         ],
                       ),
-                      const SizedBox(width: 10),
                     ],
                   ),
-                  Image.asset('assets/notes.png', height: 100),
-                  const SizedBox(height: 50),
-                  Text(
-                    l10n.welcomeBack,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 24,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(l10n.weMissedYou, style: const TextStyle(fontSize: 18)),
-                  const SizedBox(height: 50),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                    child: CustomTextField(
-                      controller: _emailController,
-                      hintText: l10n.emailHint,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return l10n.emailEmptyError;
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                    child: CustomTextField(
-                      controller: _passwordController,
-                      hintText: l10n.passwordHint,
-                      obscureText: true,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return l10n.passwordEmptyError;
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        GestureDetector(
-                          onTap: _forgotPassword,
-                          child: Text(
-                            l10n.forgotPassword,
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                    child: CustomButton(
-                      onTap: () async {
-                        if (_formKey.currentState!.validate()) {
-                          final error = await AuthController().signIn(
-                            _emailController.text,
-                            _passwordController.text,
-                          );
-
-                          if (context.mounted) {
-                            if (error == null) {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const HomePage(),
-                                ),
-                              );
-                            } else {
-                              Fluttertoast.showToast(
-                                msg: error,
-                                backgroundColor: Colors.red,
-                                textColor: Colors.white,
-                              );
-                            }
-                          }
-                        }
-                      },
-                      text: l10n.signInButton,
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Divider(
-                            thickness: 0.5,
-                            color: Colors.grey[400],
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                          child: Text(
-                            l10n.orContinueWith,
-                            style: TextStyle(color: Colors.grey[700]),
-                          ),
-                        ),
-                        Expanded(
-                          child: Divider(
-                            thickness: 0.5,
-                            color: Colors.grey[400],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  GestureDetector(
-                    onTap: () {},
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SquareTile(
-                          onTap: () {},
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                'G',
-                                style: TextStyle(
-                                  color: Colors.blue,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 24,
-                                ),
-                              ),
-                              SizedBox(width: 10),
-                              Text(
-                                l10n.googleButton,
-                                style: TextStyle(
-                                  color: Colors.black87,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        l10n.notAMember,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const RegisterPage(),
-                            ),
-                          );
-                        },
-                        child: Text(
-                          l10n.registerNow,
-                          style: const TextStyle(
-                            color: Colors.blue,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                ),
               ),
             ),
-          ),
+            if (isLoading)
+              Container(
+                color: Colors.black.withOpacity(0.3),
+                child: const Center(child: CircularProgressIndicator()),
+              ),
+          ],
         ),
       ),
     );
