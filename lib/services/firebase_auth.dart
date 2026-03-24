@@ -7,12 +7,12 @@ abstract class AuthServices {
   Future<void> sendEmailVerification();
   Future<bool> isEmailVerified();
   Future<void> forgetPassword(String email);
-
 }
 
 class FirebaseAuthServices implements AuthServices {
   @override
   Future<void> signIn(String email, String password) async {
+    // ✅ هنا نحذف try/catch عشان AuthController يمسك الأخطاء
     await FirebaseAuth.instance.signInWithEmailAndPassword(
       email: email,
       password: password,
@@ -26,9 +26,7 @@ class FirebaseAuthServices implements AuthServices {
 
   @override
   Future<void> createAccountWithEmailAndPassword(
-    String email,
-    String password,
-  ) async {
+      String email, String password) async {
     await FirebaseAuth.instance.createUserWithEmailAndPassword(
       email: email,
       password: password,
@@ -45,6 +43,7 @@ class FirebaseAuthServices implements AuthServices {
     await FirebaseAuth.instance.currentUser?.reload();
     return FirebaseAuth.instance.currentUser?.emailVerified ?? false;
   }
+
   @override
   Future<void> forgetPassword(String email) async {
     await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
