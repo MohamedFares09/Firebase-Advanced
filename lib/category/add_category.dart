@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_advanced/home/home_page.dart';
 import 'package:firebase_advanced/l10n/app_localizations.dart';
 import 'package:firebase_advanced/widgets/custom_button.dart';
 import 'package:firebase_advanced/widgets/custom_text_field.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -28,13 +30,15 @@ class _AddCategoryState extends State<AddCategory> {
   addCategory() async {
     if (formKey.currentState!.validate()) {
       try {
-        await category.add({'name': controller.text});
-        Fluttertoast.showToast(
-          msg: "Category Added",
-          backgroundColor: Colors.green,
-          textColor: Colors.white,
+        await category.add({
+          'name': controller.text,
+          'id': FirebaseAuth.instance.currentUser!.uid,
+        });
+        Fluttertoast.showToast(msg: "Category Added");
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomePage()),
         );
-        Navigator.pop(context);
       } on Exception catch (e) {
         print(e);
       }
@@ -53,7 +57,10 @@ class _AddCategoryState extends State<AddCategory> {
           child: Column(
             children: [
               const SizedBox(height: 50),
-              CustomTextField(controller: controller, hintText: l10n.addCategory),
+              CustomTextField(
+                controller: controller,
+                hintText: l10n.addCategory,
+              ),
               SizedBox(height: 20),
               CustomButton(
                 onTap: () {
