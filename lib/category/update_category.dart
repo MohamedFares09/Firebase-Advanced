@@ -3,7 +3,6 @@ import 'package:firebase_advanced/home/home_page.dart';
 import 'package:firebase_advanced/l10n/app_localizations.dart';
 import 'package:firebase_advanced/widgets/custom_button.dart';
 import 'package:firebase_advanced/widgets/custom_text_field.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
