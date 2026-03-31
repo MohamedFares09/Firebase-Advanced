@@ -3,6 +3,7 @@ import 'package:firebase_advanced/auth/login_page.dart';
 import 'package:firebase_advanced/category/add_category.dart';
 import 'package:firebase_advanced/category/update_category.dart';
 import 'package:firebase_advanced/l10n/app_localizations.dart';
+import 'package:firebase_advanced/note/note.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -75,15 +76,20 @@ class _HomePageState extends State<HomePage> {
 
               itemBuilder: (context, index) {
                 return GestureDetector(
+                  onTap: (){
+                    Navigator.of(context).push(MaterialPageRoute(builder: (_){
+                      return NotePage(id : data[index].id);
+                    }));
+                  },
                   onLongPress: () async {
                     await showDialog(
                       context: context,
                       builder: (context) {
                         return AlertDialog(
                           title: Text('Wrong'),
-                          content: Text(
-                            'Are you sure you want to delete this category?',
-                          ),
+                          // content: Text(
+                          //   'Are you sure you want to delete this category?',
+                          // ),
                           actions: [
                             TextButton(
                               onPressed: () {
