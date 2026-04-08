@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_advanced/auth/login_page.dart';
+import 'package:firebase_advanced/home/home_page.dart';
 import 'package:firebase_advanced/l10n/app_localizations.dart';
 import 'package:firebase_advanced/note/add_note.dart';
 import 'package:firebase_advanced/note/update_note.dart';
@@ -26,6 +27,8 @@ class _NotePageState extends State<NotePage> {
     isLoading = false;
     setState(() {});
   }
+
+  deleteData() {}
 
   @override
   void initState() {
@@ -94,7 +97,36 @@ class _NotePageState extends State<NotePage> {
                               },
                               child: Text("update"),
                             ),
-                            TextButton(onPressed: () {}, child: Text("delete")),
+                            TextButton(
+                              onPressed: () async {
+                                isLoading = true;
+                                setState(() {});
+                                try {
+                                  await FirebaseFirestore.instance
+                                      .collection("category")
+                                      .doc(widget.id)
+                                      .collection('note')
+                                      .doc(data[index].id)
+                                      .delete();
+                                  isLoading = false;
+                                  setState(() {});
+                                  print('Success ========================');
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) {
+                                        return HomePage();
+                                      },
+                                    ),
+                                  );
+                                } on Exception catch (e) {
+                                  print("================================= $e");
+                                  isLoading = false;
+                                  setState(() {});
+                                }
+                              },
+                              child: Text("delete"),
+                            ),
                           ],
                         );
                       },
