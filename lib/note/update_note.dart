@@ -30,7 +30,7 @@ class _UpdateNoteState extends State<UpdateNote> {
 
   updateNote() async {
     if (formKey.currentState!.validate()) {
-      try {
+      try {   
         isLoading = true;
         setState(() {});
 
