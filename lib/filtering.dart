@@ -1,52 +1,34 @@
-import 'dart:io';
-
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 
-class Filtering extends StatefulWidget {
-  const Filtering({super.key});
+class Test extends StatefulWidget {
+  const Test({super.key});
 
   @override
-  State<Filtering> createState() => _FilteringState();
+  State<Test> createState() => _TestState();
 }
 
-class _FilteringState extends State<Filtering> {
-  File? file;
-  ImagePicker imagePicker = ImagePicker();
-  getImage() async {
-    final XFile? image = await imagePicker.pickImage(
-      source: ImageSource.gallery,
+class _TestState extends State<Test> {
+  getToken() async {
+    var MyToken = await FirebaseMessaging.instance.getToken();
+    print(
+      '====================================$MyToken========================',
     );
-    if (image != null) {
-      file = File(image.path);
-    }
+  }
 
-    setState(() {});
+  @override
+  void initState() {
+    getToken();
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Image Picker")),
+      appBar: AppBar(title: Text('Notification')),
+      body: Column(children: [
 
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: [
-            GestureDetector(
-              onTap: () {
-                getImage();
-              },
-              child: Text(
-                "Get Image",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-            ),
-
-            if (file != null)
-              SizedBox(height: 100, width: 100, child: Image.file(file!)),
-          ],
-        ),
+        ],
       ),
     );
   }

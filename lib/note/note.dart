@@ -5,6 +5,7 @@ import 'package:firebase_advanced/l10n/app_localizations.dart';
 import 'package:firebase_advanced/note/add_note.dart';
 import 'package:firebase_advanced/note/update_note.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
 class NotePage extends StatefulWidget {
@@ -109,6 +110,12 @@ class _NotePageState extends State<NotePage> {
                                       .doc(data[index].id)
                                       .delete();
                                   isLoading = false;
+
+                                  if (data[index]['url'] != 'none') {
+                                    await FirebaseStorage.instance
+                                        .refFromURL(data[index]['url'])
+                                        .delete();
+                                  }
                                   setState(() {});
                                   print('Success ========================');
                                   Navigator.pushReplacement(
@@ -132,13 +139,29 @@ class _NotePageState extends State<NotePage> {
                       },
                     );
                   },
-                  child: Card(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Card(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+
+                        child: Column(
+                          children: [
+                            Text(data[index]['name']),
+                            if (data[index]['url'] != 'none')
+                              SizedBox(
+                                height: 100,
+                                width: 100,
+                                child: Image.network(
+                                  data[index]['url'],
+                                  fit: BoxFit.fill,
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
-                      padding: EdgeInsets.all(10),
-                      child: Column(children: [Text(data[index]['name'])]),
                     ),
                   ),
                 );

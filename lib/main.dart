@@ -1,16 +1,20 @@
 import 'package:firebase_advanced/auth/login_page.dart';
 import 'package:firebase_advanced/filtering.dart';
 import 'package:firebase_advanced/firebase_options.dart';
+import 'package:firebase_advanced/home/home_page.dart';
 import 'package:firebase_advanced/l10n/app_localizations.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
@@ -65,11 +69,11 @@ class _MyAppState extends State<MyApp> {
       home:
           (FirebaseAuth.instance.currentUser != null &&
               FirebaseAuth.instance.currentUser!.emailVerified == true)
-          ? Filtering()
+          ? Test()
           : LoginPage(),
 
           routes: {
-            'filter':(context)=>Filtering(),
+           
           },
     );
   }
